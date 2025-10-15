@@ -10,6 +10,7 @@ export async function POST(request: NextRequest) {
 
   console.table(body);
 
+
   console.time('hashingTime');
   // hash password before storing it
   const hashedPassword = await argon2.hash(password, {
@@ -31,9 +32,9 @@ export async function POST(request: NextRequest) {
     //   firstName: true,
     //   lastName: true,
     // },
-
     omit: {
       password: true,
+      updatedAt: true,
     },
   });
 

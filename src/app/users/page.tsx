@@ -1,12 +1,12 @@
 import { Button } from '@/components/ui/button';
-import { getUsers } from '../_actions';
+import { getUsers } from './_actions';
 import DeleteUserBtn from './_componnets/DeleteUserBtn';
 
 const page = async () => {
   // Method 1: Directly from database (Not recommended)
   // const users = await prisma.user.findMany();
 
-  // Method 2: From server action (Not recommended)
+  // Method 2: From server action ( recommended)
   const users = await getUsers();
 
   // Method 3: From API route (Recommended)
@@ -39,7 +39,7 @@ const page = async () => {
                   View Details
                 </Button>
 
-                <DeleteUserBtn userId= {user.id} />
+                <DeleteUserBtn userId={user.id} />
               </li>
             );
           })

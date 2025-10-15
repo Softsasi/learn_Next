@@ -5,6 +5,9 @@ import { revalidatePath } from 'next/cache';
 
 export const getUsers = async () => {
   const users = await prisma.user.findMany();
+  if (!users) {
+    return null;
+  }
   return users;
 };
 

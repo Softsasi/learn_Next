@@ -1,25 +1,27 @@
-"use client";
+'use client';
 
 import AppConfig from '@/config/appConfig';
-import { useState } from "react";
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 const LoginForm = () => {
   const [formData, setFormData] = useState({
-    email: "",
-    password: "",
+    email: '',
+    password: '',
     rememberMe: false,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value
+      [name]: type === 'checkbox' ? checked : value,
     }));
 
     if (errors[name]) {
-      setErrors(prev => {
+      setErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors[name];
         return newErrors;
@@ -31,40 +33,56 @@ const LoginForm = () => {
     const newErrors: Record<string, string> = {};
 
     if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
+      newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Email is invalid";
+      newErrors.email = 'Email is invalid';
     }
 
     if (!formData.password) {
-      newErrors.password = "Password is required";
+      newErrors.password = 'Password is required';
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async(e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
+      const res = await fetch(`${AppConfig.apiUrl}/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
 
-       const res = await fetch(`${AppConfig.apiUrl}/login`, {
-         method: 'POST',
-         headers: {
-           'Content-Type': 'application/json',
-         },
-         body: JSON.stringify(formData),
-       });
+      const data = await res.json();
 
+      if (data.code !== 200) {
+        setErrors({ general: data.message || 'Login failed' });
+        return;
+      }
 
-      console.log("Login form submitted:", formData);
+      console.log('Login successful:', data);
+
+      setTimeout(() => {
+        router.push('/users');
+      }, 1000);
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {errors.general && (
+        <p className="text-sm text-red-600">{errors.general}</p>
+      )}
+
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+        <label
+          htmlFor="email"
+          className="block text-sm font-medium text-gray-700 mb-2"
+        >
           Email Address
         </label>
         <input
@@ -73,14 +91,21 @@ const LoginForm = () => {
           type="email"
           value={formData.email}
           onChange={handleChange}
-          className={`w-full px-4 py-3 border ${errors.email ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors`}
+          className={`w-full px-4 py-3 border ${
+            errors.email ? 'border-red-500' : 'border-gray-300'
+          } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors`}
           placeholder="john@example.com"
         />
-        {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+        {errors.email && (
+          <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+        )}
       </div>
 
       <div>
-        <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+        <label
+          htmlFor="password"
+          className="block text-sm font-medium text-gray-700 mb-2"
+        >
           Password
         </label>
         <input
@@ -89,10 +114,14 @@ const LoginForm = () => {
           type="password"
           value={formData.password}
           onChange={handleChange}
-          className={`w-full px-4 py-3 border ${errors.password ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors`}
+          className={`w-full px-4 py-3 border ${
+            errors.password ? 'border-red-500' : 'border-gray-300'
+          } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors`}
           placeholder="••••••••"
         />
-        {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
+        {errors.password && (
+          <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+        )}
       </div>
 
       <div className="flex items-center justify-between">
@@ -110,7 +139,10 @@ const LoginForm = () => {
           </label>
         </div>
 
-        <a href="#" className="text-sm font-medium text-blue-600 hover:text-blue-500 transition-colors">
+        <a
+          href="#"
+          className="text-sm font-medium text-blue-600 hover:text-blue-500 transition-colors"
+        >
           Forgot password?
         </a>
       </div>

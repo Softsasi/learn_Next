@@ -1,11 +1,12 @@
 'use client';
 
-import { deleteUser } from '@/app/_actions';
+import { deleteUser } from '@/app/users/_actions';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 
 const DeleteUserBtn = ({ userId }: { userId: string }) => {
   const router = useRouter();
+
   const handleDeleteUser = async (userId: string) => {
     console.log('I am clicked', userId);
     const res = await deleteUser(userId);
