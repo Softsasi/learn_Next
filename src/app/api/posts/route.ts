@@ -7,6 +7,20 @@ export async function POST(request: NextRequest) {
 
   const { title, content, authorId } = body;
 
+  if (!title || !content || !authorId) {
+    return new Response(
+      JSON.stringify({
+        error: `Missing required fields ${!title ? 'title' : ''} ${
+          !content ? 'content' : ''
+        } ${!authorId ? 'authorId' : ''}`,
+      }),
+      {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
+  }
+
   const res = await prisma.post.create({
     data: {
       title,

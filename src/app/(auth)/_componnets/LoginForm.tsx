@@ -64,11 +64,20 @@ const LoginForm = () => {
         return;
       }
 
-      console.log('Login successful:', data);
+      console.table(data);
 
-      setTimeout(() => {
-        router.push('/users');
-      }, 1000);
+      // save user data into localStorage
+      localStorage.setItem(
+        'user',
+        JSON.stringify({
+          userId: data.userId,
+          email: data.email,
+        })
+      );
+
+      // setTimeout(() => {
+      //   router.push('/users');
+      // }, 1000);
     }
   };
 

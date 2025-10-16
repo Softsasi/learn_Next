@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const PostForm = () => {
   const [state, setState] = useState({
@@ -9,6 +9,15 @@ const PostForm = () => {
     content: '',
     authorId: '',
   });
+
+  useEffect(() => {
+    const userData = localStorage.getItem('user');
+    const user = userData ? JSON.parse(userData) : null;
+
+    if (user && user.userId) {
+      setState((prev) => ({ ...prev, authorId: user.userId }));
+    }
+  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -29,7 +38,7 @@ const PostForm = () => {
     const data = await res.json();
     console.log('response', data);
 
-    setState({ title: '', content: '', authorId: '' });
+    setState({ title: '', content: '', authorId: state.authorId });
   };
 
   return (
@@ -98,29 +107,14 @@ const PostForm = () => {
           </div>
 
           {/* Author ID */}
-          <div className="group">
-            <label
-              htmlFor="authorId"
-              className="block mb-2 text-sm font-medium text-gray-600 dark:text-gray-300"
-            >
-              Author ID
-            </label>
-            <input
-              type="text"
-              id="authorId"
-              name="authorId"
-              className="w-full px-4 py-3 rounded-xl bg-gray-50/80 dark:bg-gray-800/70
-                         border border-gray-300 dark:border-gray-700
-                         focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                         outline-none text-gray-800 dark:text-gray-100
-                         placeholder:text-gray-400 dark:placeholder:text-gray-500
-                         transition-all duration-200"
-              placeholder="Enter author ID..."
-              required
-              onChange={handleChange}
-              value={state.authorId}
-            />
-          </div>
+          <input
+            type="text"
+            id="authorId"
+            name="authorId"
+            value={state.authorId}
+            onChange={handleChange}
+            hidden
+          />
 
           {/* Button */}
           <div className="flex justify-end">
