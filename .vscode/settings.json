@@ -1,0 +1,24 @@
+{
+  "files.associations": {
+    "*.ejs": "html",
+    "*.yml": "yaml",
+    "*.yaml": "yaml",
+    "*.env.*": "dotenv",
+    "*.conf": "ini",
+    "*.properties": "properties",
+    "Dockerfile*": "dockerfile",
+    "docker-compose*": "dockercompose",
+    "compose*": "dockercompose",
+    "*.hbs": "handlebars",
+    "*.mustache": "mustache",
+    "*.graphql": "graphql",
+    "*.gql": "graphql",
+    "*.prisma": "prisma",
+    "*.proto": "proto3",
+    "*.sql": "sql",
+    "*.spec.ts": "typescript",
+    "*.test.ts": "typescript",
+    "*.e2e-spec.ts": "typescript",
+    "stdio.h": "c"
+  }
+}
