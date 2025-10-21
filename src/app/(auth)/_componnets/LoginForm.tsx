@@ -1,6 +1,7 @@
 'use client';
 
 import AppConfig from '@/config/appConfig';
+import { useAuth } from '@/context/authProvider';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
@@ -12,6 +13,7 @@ const LoginForm = () => {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const router = useRouter();
+  const { login } = useAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -64,20 +66,14 @@ const LoginForm = () => {
         return;
       }
 
-      console.table(data);
+      login({
+        userId: data.userId,
+        email: data.email,
+      });
 
-      // save user data into localStorage
-      localStorage.setItem(
-        'user',
-        JSON.stringify({
-          userId: data.userId,
-          email: data.email,
-        })
-      );
-
-      // setTimeout(() => {
-      //   router.push('/users');
-      // }, 1000);
+      setTimeout(() => {
+        router.push('/posts');
+      }, 1000);
     }
   };
 

@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
@@ -34,10 +34,14 @@ export async function POST(request: NextRequest) {
     },
   });
 
-  return new Response(JSON.stringify(res), {
-    status: 201,
-    headers: { 'Content-Type': 'application/json' },
-  });
+  return NextResponse.json(
+    {
+      message: 'Post created successfully',
+      post: res,
+      code: 201,
+    },
+    { status: 201 }
+  );
 }
 
 export async function GET() {

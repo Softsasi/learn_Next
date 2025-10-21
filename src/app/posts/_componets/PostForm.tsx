@@ -1,7 +1,9 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 const PostForm = () => {
   const [state, setState] = useState({
@@ -9,6 +11,8 @@ const PostForm = () => {
     content: '',
     authorId: '',
   });
+
+  const router = useRouter();
 
   useEffect(() => {
     const userData = localStorage.getItem('user');
@@ -37,6 +41,18 @@ const PostForm = () => {
 
     const data = await res.json();
     console.log('response', data);
+
+    if (data.code !== 201) {
+      toast.error(`Error: ${data.error || 'Could not create post'}`);
+      return;
+    }
+    toast.success('Post created successfully!', {
+      position: 'top-right',
+      style: { background: '#22c55e', color: '#fff' },
+      cancel: true,
+    });
+
+    router.back();
 
     setState({ title: '', content: '', authorId: state.authorId });
   };

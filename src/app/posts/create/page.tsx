@@ -1,13 +1,13 @@
 'use client';
 
-import useUserData from '@/hooks/useUserData';
-import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/context/authProvider';
 import { ArrowLeft, LogIn, PenTool } from 'lucide-react';
+import Link from 'next/link';
 import PostForm from '../_componets/PostForm';
 
 const CreatePostPage = () => {
-  const user = useUserData();
+  const { user } = useAuth();
 
   if (!user) {
     return (
@@ -24,7 +24,8 @@ const CreatePostPage = () => {
               Sign In Required
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
-              You must be signed in to create and share posts with the community.
+              You must be signed in to create and share posts with the
+              community.
             </p>
           </div>
 
