@@ -44,8 +44,22 @@ export async function POST(request: NextRequest) {
   );
 }
 
-export async function GET() {
-  const posts = await prisma.post.findMany();
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+
+  console.log('Search Parameters:', searchParams.toString());
+
+  const page = parseInt(searchParams.get('page') || '1', 10);
+  const limit = parseInt(searchParams.get('limit') || '10', 10);
+
+  const skip = (page - 1) * limit;
+
+  console.time('query');
+  const posts = await prisma.post.findMany({
+    take: limit,
+    skip: skip,
+  });
+  console.timeEnd('query');
 
   return new Response(JSON.stringify(posts), {
     status: 200,

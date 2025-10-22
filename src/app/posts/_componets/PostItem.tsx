@@ -1,7 +1,7 @@
-import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Calendar, User } from 'lucide-react';
+import Link from 'next/link';
 
 interface PostItemProps {
   id: string;
@@ -12,14 +12,37 @@ interface PostItemProps {
   updatedAt?: Date;
 }
 
-const PostItem = ({ id, title, content, authorId, createdAt, updatedAt }: PostItemProps) => {
-  const formatDate = (date: Date | undefined) => {
+const PostItem = ({
+  id,
+  title,
+  content,
+  authorId,
+  createdAt,
+  updatedAt,
+}: PostItemProps) => {
+  console.log({
+    id,
+    title,
+    content,
+    authorId,
+    createdAt,
+    updatedAt,
+  });
+
+  const formatDate = (date: Date | string | undefined) => {
     if (!date) return 'Unknown date';
+
+    // Convert string to Date object
+    const parsedDate = typeof date === 'string' ? new Date(date) : date;
+
+    // Guard against invalid date values
+    if (isNaN(parsedDate.getTime())) return 'Invalid date';
+
     return new Intl.DateTimeFormat('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
-    }).format(date);
+    }).format(parsedDate);
   };
 
   return (
@@ -46,9 +69,7 @@ const PostItem = ({ id, title, content, authorId, createdAt, updatedAt }: PostIt
             {updatedAt && createdAt && updatedAt > createdAt && ' (updated)'}
           </div>
           <Button variant="outline" size="sm" asChild>
-            <Link href={`/posts/${id}`}>
-              Read More
-            </Link>
+            <Link href={`/posts/${id}`}>Read More</Link>
           </Button>
         </div>
       </CardContent>

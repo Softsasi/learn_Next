@@ -52,7 +52,7 @@ const PostForm = () => {
       cancel: true,
     });
 
-    router.back();
+    router.push('/posts');
 
     setState({ title: '', content: '', authorId: state.authorId });
   };

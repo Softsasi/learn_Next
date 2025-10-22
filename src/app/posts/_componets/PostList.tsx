@@ -1,3 +1,6 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import PostItem from './PostItem';
 
 interface Post {
@@ -13,7 +16,34 @@ interface PostListProps {
   posts: Post[];
 }
 
-const PostList = ({ posts }: PostListProps) => {
+const PostList = () => {
+  const [posts, setPosts] = useState<Post[] | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(
+          'http://localhost:3000/api/posts?page=1&limit=15'
+        );
+        const data = await response.json();
+        console.log(data);
+
+        setPosts(data);
+      } catch (err) {
+        console.error(err);
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPosts();
+  }, []);
+
   if (!posts || posts.length === 0) {
     return (
       <div className="text-center py-12">
