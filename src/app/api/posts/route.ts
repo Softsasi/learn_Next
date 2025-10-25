@@ -45,6 +45,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
+  // console.log('Request', req.url);
   const { searchParams } = new URL(req.url);
 
   console.log('Search Parameters:', searchParams.toString());
@@ -54,15 +55,72 @@ export async function GET(req: NextRequest) {
 
   const skip = (page - 1) * limit;
 
-  console.time('query');
-  const posts = await prisma.post.findMany({
-    take: limit,
-    skip: skip,
-  });
-  console.timeEnd('query');
+  console.time('total posts count');
 
-  return new Response(JSON.stringify(posts), {
-    status: 200,
-    headers: { 'Content-Type': 'application/json' },
-  });
+  const [posts, totalPost] = await Promise.all([
+    await prisma.post.findMany({
+      take: limit,
+      skip: skip,
+    }),
+    await prisma.post.count(),
+  ]);
+
+  console.timeEnd('total posts count');
+
+  // pagination info
+  const totalPages = Math.ceil(totalPost / limit);
+  const hasNextPage = page < totalPages;
+  const hasPrevPage = page > 1;
+  const currentPage = page;
+  const itemsPerPage = limit;
+  const startItem = skip + 1;
+  const endItem = Math.min(skip + limit, totalPost);
+  const remainingItems = totalPost - endItem;
+
+  // generate hetos link
+  const href = new URL(req.url);
+  const currentPageLink = href.href;
+  const nextPageLink = hasNextPage
+    ? `${href.origin}${href.pathname}?page=${
+        currentPage + 1
+      }&limit=${itemsPerPage}`
+    : null;
+  const prevPageLink = hasPrevPage
+    ? `${href.origin}${href.pathname}?page=${
+        currentPage - 1
+      }&limit=${itemsPerPage}`
+    : null;
+  const firstPageLink =
+    page > 1
+      ? `${href.origin}${href.pathname}?page=1&limit=${itemsPerPage}`
+      : null;
+  const lastPageLink =
+    page < totalPages
+      ? `${href.origin}${href.pathname}?page=${totalPages}&limit=${itemsPerPage}`
+      : null;
+
+  return NextResponse.json(
+    {
+      posts,
+      meta: {
+        totalItems: totalPost,
+        totalPages: totalPages,
+        currentPage: currentPage,
+        itemsPerPage: itemsPerPage,
+        hasNextPage: hasNextPage,
+        hasPrevPage: hasPrevPage,
+        startItem: startItem,
+        endItem: endItem,
+        remainingItems: remainingItems,
+      },
+      links: {
+        current: currentPageLink,
+        next: nextPageLink,
+        prev: prevPageLink,
+        first: firstPageLink,
+        last: lastPageLink,
+      },
+    },
+    { status: 200 }
+  );
 }
