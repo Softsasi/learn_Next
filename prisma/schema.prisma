@@ -8,29 +8,135 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  email     String   @unique
+enum Role {
+  STUDENT
+  TEACHER
+  PARENT
+  ADMIN
+}
+
+enum AccountStatus {
+  PENDING
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum LoginAttemptStatus {
+  SUCCESS
+  FAILED
+}
+
+enum VerificationCodeType {
+  ACCOUNT_ACTIVATION
+  PASSWORD_RESET
+  EMAIL_CHANGE
+  PHONE_CHANGE
+  TWO_FACTOR_AUTH
+  TWO_FACTOR_AUTH_DISABLE
+}
+
+enum VerificationStatus {
+  PENDING
+  VERIFIED
+  EXPIRED
+  USED
+}
+
+/**
+ * ============================== ==============================
+ * VerificationCode MLoginHistory Model
+ * ============================== ==============================
+ */
+model VerificationCode {
+  id         String               @id @default(auto()) @map("_id") @db.ObjectId
+  status     VerificationStatus   @default(PENDING)
+  userId     String               @db.ObjectId
+  user       AuthUser             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  code       String
+  type       VerificationCodeType @default(ACCOUNT_ACTIVATION)
+  issuedAt   DateTime             @default(now())
+  expiresAt  DateTime
+  verifiedAt DateTime?
+}
+
+/**
+ * ============================== ==============================
+ * odel
+ * ============================== ==============================
+ */
+model LoginHistory {
+  id        String             @id @default(auto()) @map("_id") @db.ObjectId
+  user      AuthUser           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String             @db.ObjectId
+  ipAddress String?
+  userAgent String?
+  attempt   LoginAttemptStatus @default(SUCCESS)
+  loginAt   DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+  createdAt DateTime           @default(now())
+}
+
+/**
+ * ============================== ==============================
+ * User Model
+ * ============================== ==============================
+ */
+model UserProfile {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
   firstName String
   lastName  String
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  dob       DateTime?
+  phone     String?
+  address   String?
+  authUser  AuthUser  @relation(fields: [id], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   posts     Post[]
 }
 
+/**
+ * ============================== ==============================
+ * AuthUser Model
+ * ============================== ==============================
+ */
+model AuthUser {
+  id        String        @id @default(auto()) @map("_id") @db.ObjectId
+  email     String        @unique
+  password  String
+  role      Role          @default(STUDENT)
+  verified  Boolean       @default(false)
+  status    AccountStatus @default(PENDING)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  user              UserProfile?       @relation
+  loginHistories    LoginHistory[]
+  verificationCodes VerificationCode[]
+}
+
+/**
+ * ============================== ==============================
+ * Post Model
+ * ============================== ==============================
+ */
 model Post {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  id        String       @id @default(auto()) @map("_id") @db.ObjectId
   title     String
   content   String
-  author    User?    @relation(fields: [authorId], references: [id])
-  authorId  String?  @db.ObjectId
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  author    UserProfile? @relation(fields: [authorId], references: [id])
+  authorId  String?      @db.ObjectId
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
 
   @@index([authorId])
 }
 
+/**
+ * ============================== ==============================
+ * Contact Model
+ * ============================== ==============================
+ */
 model Contact {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   name      String

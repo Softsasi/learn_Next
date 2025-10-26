@@ -1,4 +1,5 @@
 version: '3.8'
+
 services:
   mongodb:
     image: mongo:latest
@@ -9,6 +10,8 @@ services:
       - mongodb_data:/data/db
       - ./init-replica.js:/docker-entrypoint-initdb.d/init-replica.js:ro
     command: mongod --replSet rs0 --bind_ip_all
+    networks:
+      - mongo_network
 
   mongo-express:
     image: mongo-express:latest
@@ -16,12 +19,18 @@ services:
     ports:
       - "8081:8081"
     environment:
-      ME_CONFIG_MONGODB_SERVER: mongodb   # ✅ match service name
+      ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_MONGODB_PORT: 27017
       ME_CONFIG_MONGODB_ENABLE_ADMIN: "true"
       ME_CONFIG_MONGODB_AUTH: "false"
       ME_CONFIG_BASICAUTH: "false"
     depends_on:
       - mongodb
+    networks:
+      - mongo_network
+
+networks:
+  mongo_network:
 
 volumes:
   mongodb_data:

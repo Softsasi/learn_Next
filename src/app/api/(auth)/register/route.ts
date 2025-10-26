@@ -1,7 +1,7 @@
 import AppConfig from '@/config/appConfig';
 import { prisma } from '@/lib/prisma';
 import * as argon2 from 'argon2';
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   // Parse the request body
@@ -9,7 +9,6 @@ export async function POST(request: NextRequest) {
   const { firstName, lastName, email, password } = body;
 
   console.table(body);
-
 
   console.time('hashingTime');
   // hash password before storing it
@@ -20,35 +19,30 @@ export async function POST(request: NextRequest) {
   });
   console.timeEnd('hashingTime');
 
-  const newUser = await prisma.user.create({
+  // Create new user in the database
+  const newUser = await prisma.authUser.create({
     data: {
-      firstName,
-      lastName,
       email,
       password: hashedPassword,
+      user: {
+        create: {
+          firstName,
+          lastName,
+        },
+      },
     },
-    // select: {
-    //   id: true,
-    //   firstName: true,
-    //   lastName: true,
-    // },
     omit: {
       password: true,
       updatedAt: true,
     },
   });
 
-  return new Response(JSON.stringify(newUser), {
-    status: 201,
-    headers: { 'Content-Type': 'application/json' },
-  });
-}
-
-export async function GET() {
-  const users = await prisma.user.findMany();
-
-  return new Response(JSON.stringify(users), {
-    status: 200,
-    headers: { 'Content-Type': 'application/json' },
-  });
+  return NextResponse.json(
+    {
+      message: 'User registered successfully',
+      user: newUser,
+      code: 201,
+    },
+    { status: 201 }
+  );
 }
