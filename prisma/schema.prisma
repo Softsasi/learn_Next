@@ -86,6 +86,7 @@ model UserProfile {
   id        String    @id @default(auto()) @map("_id") @db.ObjectId
   firstName String
   lastName  String
+  bio      String?
   dob       DateTime?
   phone     String?
   address   String?
@@ -109,7 +110,6 @@ model AuthUser {
   status    AccountStatus @default(PENDING)
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
-
   user              UserProfile?       @relation
   loginHistories    LoginHistory[]
   verificationCodes VerificationCode[]
