@@ -90,6 +90,7 @@ model UserProfile {
   dob       DateTime?
   phone     String?
   address   String?
+  avatarUrl String?
   authUser  AuthUser  @relation(fields: [id], references: [id])
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt

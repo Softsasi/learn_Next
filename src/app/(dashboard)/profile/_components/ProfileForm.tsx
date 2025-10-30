@@ -14,6 +14,7 @@ import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 import { useForm } from 'react-hook-form';
+import ProfileImageUpload from '../../_components/ProfileImageUpload';
 import { ProfileFormField, ProfileTextAreaField } from './ProfileFormField';
 
 interface ProfileFormProps {
@@ -22,6 +23,8 @@ interface ProfileFormProps {
 }
 
 export const ProfileForm = ({ userInfo }: ProfileFormProps) => {
+  console.log(userInfo);
+
   const {
     register,
     handleSubmit,
@@ -56,6 +59,10 @@ export const ProfileForm = ({ userInfo }: ProfileFormProps) => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <div className="flex items-center space-x-4">
+        <ProfileImageUpload userId={userInfo?.id} avatarUrl={userInfo?.user.avatarUrl} />
+      </div>
+
       {/* Personal Information Card */}
       <Card>
         <CardHeader>

@@ -11,6 +11,7 @@ export async function getUserInfo(userId: string) {
       email: true,
       role: true,
       verified: true,
+      
       user: {
         omit: {
           updatedAt: true,

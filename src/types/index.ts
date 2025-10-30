@@ -6,6 +6,7 @@ export interface IUserProfile {
   id: string;
   firstName: string;
   lastName: string;
+  avatarUrl?: string;
   dob?: string;
   bio?: string;
   phone?: string;
