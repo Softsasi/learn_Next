@@ -34,22 +34,26 @@ A comprehensive learning platform built with Next.js 16, TypeScript, and MongoDB
 ## 🚀 Getting Started
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/Softsasi/learn_Next.git
 cd learn_Next
 ```
 
 2. Install dependencies:
+
 ```bash
 pnpm install
 ```
 
 3. Set up environment variables:
+
 ```bash
 cp .demo.env .env.local
 ```
 
 Edit `.env.local` with your actual values:
+
 ```env
 DATABASE_URL="mongodb://localhost:27017/learn_next"
 NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME="your_cloud_name"
@@ -60,12 +64,14 @@ ARGON2_SECRET="your_secret_key"
 ```
 
 4. Initialize the database:
+
 ```bash
 pnpm db:push
 pnpm db:generate
 ```
 
 5. Run the development server:
+
 ```bash
 pnpm dev
 ```

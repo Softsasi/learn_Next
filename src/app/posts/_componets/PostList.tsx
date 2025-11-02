@@ -13,10 +13,6 @@ interface Post {
   updatedAt?: Date;
 }
 
-interface PostListProps {
-  posts: Post[];
-}
-
 interface ApiResponse {
   posts: Post[];
   meta: {
@@ -41,17 +37,20 @@ const PostList = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
   const [nextPageUrl, setNextPageUrl] = useState<string | null>(
     `${AppConfig.apiUrl}/posts?page=1&limit=15`
   );
 
   const observerRef = useRef<HTMLDivElement | null>(null);
+  const isFetchingRef = useRef(false); // Prevents duplicate requests
 
   const fetchPosts = async (url: string) => {
-    if (!url) return;
+    if (!url || isFetchingRef.current) return;
+
     try {
+      isFetchingRef.current = true;
       setLoading(true);
+
       const response = await fetch(url);
       const data: ApiResponse = await response.json();
 
@@ -62,42 +61,44 @@ const PostList = () => {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
+      isFetchingRef.current = false; // release lock
     }
   };
 
+  // Initial load
   useEffect(() => {
-    fetchPosts(nextPageUrl!);
+    if (nextPageUrl) fetchPosts(nextPageUrl);
   }, []);
 
+  // Infinite scroll observer
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
-      const lastEntry = entries[0];
-      console.log({ entries, lastEntry });
-
-      if (lastEntry.isIntersecting && nextPageUrl && !loading) {
-        fetchPosts(nextPageUrl!);
+      const entry = entries[0];
+      if (
+        entry.isIntersecting &&
+        nextPageUrl &&
+        !loading &&
+        !isFetchingRef.current
+      ) {
+        fetchPosts(nextPageUrl);
       }
     });
 
-    console.log(observerRef);
-
-    if (observerRef.current) {
-      observer.observe(observerRef.current);
-    }
+    const node = observerRef.current;
+    if (node) observer.observe(node);
 
     return () => {
-      if (observerRef.current) {
-        observer.unobserve(observerRef.current);
-      }
+      if (node) observer.unobserve(node);
     };
   }, [nextPageUrl, loading]);
+
+  // --- UI states ---
 
   if (error) {
     return <div className="text-center text-red-600">Error: {error}</div>;
   }
 
-  // Initial loading state: show a grid of skeleton cards
-  if (loading && (!posts || posts.length === 0)) {
+  if (loading && posts.length === 0) {
     return (
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 6 }).map((_, i) => (
@@ -107,7 +108,7 @@ const PostList = () => {
     );
   }
 
-  if (!posts || (posts.length === 0 && !loading)) {
+  if (!posts.length && !loading) {
     return (
       <div className="text-center py-12">
         <div className="text-6xl mb-4">📝</div>

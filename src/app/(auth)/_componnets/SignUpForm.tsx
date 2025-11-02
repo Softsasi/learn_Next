@@ -2,17 +2,25 @@
 
 import AppConfig from '@/config/appConfig';
 import { Eye, EyeOff } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
-const SignUpForm = () => {
+type SignUpFormProps = {
+  role: 'student' | 'teacher';
+};
+
+const SignUpForm = ({ role }: SignUpFormProps) => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
     password: '',
     confirmPassword: '',
+    role: role || 'student',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const router = useRouter();
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -68,7 +76,7 @@ const SignUpForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    console.log('Form Data:', formData);
+    formData['role'] = role;
 
     if (validateForm()) {
       const res = await fetch(`${AppConfig.apiUrl}/register`, {
@@ -86,6 +94,15 @@ const SignUpForm = () => {
       if (res.ok) {
         // Handle successful registration
         console.log('Registration successful:', data);
+        toast.success('Registration successful! Please sign in.', {
+          position: 'top-right',
+          style: { background: '#22c55e', color: '#fff' },
+          cancel: true,
+        });
+
+        setTimeout(() => {
+          router.push('/signin');
+        }, 1500);
       } else {
         // Handle registration error
         console.error('Registration failed:', data);

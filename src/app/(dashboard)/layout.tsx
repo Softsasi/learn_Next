@@ -1,3 +1,5 @@
+'use client';
+
 const DashBoardLayout = ({
   children,
 }: Readonly<{ children: React.ReactNode }>) => {

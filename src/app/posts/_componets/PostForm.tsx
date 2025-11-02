@@ -46,6 +46,7 @@ const PostForm = () => {
       toast.error(`Error: ${data.error || 'Could not create post'}`);
       return;
     }
+
     toast.success('Post created successfully!', {
       position: 'top-right',
       style: { background: '#22c55e', color: '#fff' },

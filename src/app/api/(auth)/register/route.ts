@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(request: NextRequest) {
   // Parse the request body
   const body = await request.json();
-  const { firstName, lastName, email, password } = body;
+  const { firstName, lastName, email, password, role } = body;
 
   console.table(body);
 
@@ -24,6 +24,7 @@ export async function POST(request: NextRequest) {
     data: {
       email,
       password: hashedPassword,
+      role: role.toUpperCase(),
       user: {
         create: {
           firstName,
