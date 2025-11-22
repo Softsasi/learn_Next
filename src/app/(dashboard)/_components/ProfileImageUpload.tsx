@@ -77,17 +77,48 @@ const ProfileImageUpload = ({
   return (
     <div
       {...getRootProps()}
-      className="border-dashed border-2 p-4 rounded-lg text-center cursor-pointer"
+      className={`relative border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all duration-300 ${
+        isDragActive
+          ? 'border-blue-500 bg-blue-50'
+          : 'border-gray-200 bg-gray-50 hover:border-blue-400 hover:bg-blue-50/50'
+      }`}
     >
       <input {...getInputProps()} />
       {preview ? (
-        <img
-          src={preview}
-          alt="Preview"
-          className="mx-auto w-32 h-32 rounded-full object-cover"
-        />
+        <div className="relative inline-block">
+          <img
+            src={preview}
+            alt="Preview"
+            className="mx-auto w-40 h-40 rounded-full object-cover shadow-lg border-4 border-white ring-4 ring-blue-100"
+          />
+          <div className="absolute inset-0 rounded-full bg-black/0 hover:bg-black/10 transition-colors flex items-center justify-center">
+            <span className="text-white text-sm font-medium opacity-0 hover:opacity-100 transition-opacity">Click to change</span>
+          </div>
+        </div>
       ) : (
-        <p>Drag & drop your profile photo here, or click to select</p>
+        <div className="flex flex-col items-center space-y-3">
+          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+            <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+          </div>
+          <div>
+            <p className="text-gray-700 font-semibold">Drag & drop your profile photo</p>
+            <p className="text-sm text-gray-500 mt-1">or click to select (PNG, JPG up to 5MB)</p>
+          </div>
+        </div>
+      )}
+      {uploading && (
+        <div className="absolute inset-0 bg-white/80 rounded-2xl flex items-center justify-center">
+          <div className="flex flex-col items-center space-y-2">
+            <div className="animate-spin">
+              <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </div>
+            <p className="text-sm text-gray-600">Uploading...</p>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -4,6 +4,8 @@ import * as argon2 from 'argon2';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
+  console.log("I am called form Post");
+
   // Parse the request body
   const body = await request.json();
   const { firstName, lastName, email, password, role } = body;

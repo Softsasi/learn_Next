@@ -1,5 +1,5 @@
 'use client';
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useReducer } from 'react';
 
 type IUser = {
   userId: string;
@@ -12,24 +12,66 @@ type IAuthContext = {
   logout: () => void;
 }
 
+type IAction = {
+  type: 'SET_USER' | 'SET_LOGGED_IN_USER' | 'LOGOUT_USER';
+  payload: IUser | null;
+}
+
+const userReducer = (state: IUser | null, action:IAction) => {
+  console.log(action);
+  switch (action.type) {
+    case 'SET_USER': {
+      return action.payload;
+    }
+
+    case 'SET_LOGGED_IN_USER': {
+      return action.payload;
+    }
+
+    case 'LOGOUT_USER': {
+      return null;
+    }
+
+    default: {
+      return state;
+    }
+  }
+
+}
+
+
+
 export const authContext = createContext<IAuthContext | null>(null);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<IUser | null>(null);
+
+  const [user, dispatch] = useReducer(userReducer, null);
 
   useEffect(() => {
     const userData = localStorage.getItem('user');
     const user = userData ? JSON.parse(userData) : null;
-    setUser(user);
+
+    dispatch({
+      type: 'SET_USER',
+      payload: user,
+    });
   }, []);
 
   const login = (userData: IUser) => {
-    setUser(userData);
+    dispatch({
+      type: "SET_LOGGED_IN_USER",
+      payload: userData,
+    })
+
     localStorage.setItem('user', JSON.stringify(userData));
   };
 
   const logout = () => {
-    setUser(null);
+    dispatch({
+      type: "LOGOUT_USER",
+      payload: null,
+    })
+
     localStorage.removeItem('user');
   };
 

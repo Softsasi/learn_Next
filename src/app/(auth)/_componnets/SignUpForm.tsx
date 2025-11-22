@@ -79,6 +79,8 @@ const SignUpForm = ({ role }: SignUpFormProps) => {
     formData['role'] = role;
 
     if (validateForm()) {
+      console.log('AppConfig.apiUrl',AppConfig);
+
       const res = await fetch(`${AppConfig.apiUrl}/register`, {
         method: 'POST',
         headers: {

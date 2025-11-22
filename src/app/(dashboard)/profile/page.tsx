@@ -52,14 +52,29 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <ProfileHeader firstName={userInfo?.user.firstName} />
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 py-12">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header with accent line */}
+        <div className="mb-8">
+          <ProfileHeader firstName={userInfo?.user.firstName} />
+        </div>
 
-        {loading && <ProfileSkeleton />}
+        {/* Loading State */}
+        {loading && (
+          <div className="animate-pulse space-y-6">
+            <ProfileSkeleton />
+          </div>
+        )}
 
-        {error && !loading && <ErrorMessage message={error} />}
+        {/* Error State */}
+        {error && !loading && (
+          <div className="bg-red-50 border-2 border-red-200 rounded-xl p-6 flex items-center space-x-4">
+            <div className="text-red-600 text-2xl">⚠️</div>
+            <ErrorMessage message={error} />
+          </div>
+        )}
 
+        {/* Form State */}
         {!loading && !error && userInfo && (
           <ProfileForm userInfo={userInfo} onSubmit={handleSubmit} />
         )}

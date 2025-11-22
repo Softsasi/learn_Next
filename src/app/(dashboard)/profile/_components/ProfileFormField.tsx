@@ -11,17 +11,20 @@ export const ProfileFormField = React.forwardRef<
   ProfileFormFieldProps
 >(({ id, label, className, readOnly, ...props }, ref) => {
   return (
-    <div className="space-y-2">
-      <label htmlFor={id} className="text-sm font-medium text-gray-700 block">
+    <div className="space-y-2.5">
+      <label htmlFor={id} className="text-sm font-semibold text-gray-700 block">
         {label}
+        {readOnly && <span className="text-gray-400 font-normal ml-1">(Read-only)</span>}
       </label>
       <Input
         id={id}
         ref={ref}
         readOnly={readOnly}
-        className={`${readOnly ? 'bg-gray-50 cursor-not-allowed' : ''} ${
-          className || ''
-        }`}
+        className={`h-10 text-base rounded-lg border transition-all duration-200 ${
+          readOnly
+            ? 'bg-gray-50 cursor-not-allowed border-gray-200 text-gray-500'
+            : 'border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 hover:border-gray-400'
+        } ${className || ''}`}
         {...props}
       />
     </div>
@@ -40,18 +43,21 @@ export const ProfileTextAreaField = React.forwardRef<
   ProfileTextAreaFieldProps
 >(({ id, label, className, readOnly, ...props }, ref) => {
   return (
-    <div className="space-y-2">
-      <label htmlFor={id} className="text-sm font-medium text-gray-700 block">
+    <div className="space-y-2.5">
+      <label htmlFor={id} className="text-sm font-semibold text-gray-700 block">
         {label}
+        {readOnly && <span className="text-gray-400 font-normal ml-1">(Read-only)</span>}
       </label>
       <textarea
         id={id}
         ref={ref}
         readOnly={readOnly}
         rows={4}
-        className={`flex min-h-20 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:border-ring disabled:cursor-not-allowed disabled:opacity-50 ${
-          readOnly ? 'bg-gray-50 cursor-not-allowed' : ''
-        } ${className || ''}`}
+        className={`flex min-h-24 w-full rounded-lg border bg-white px-4 py-3 text-sm placeholder:text-gray-400 transition-all duration-200 ${
+          readOnly
+            ? 'border-gray-200 bg-gray-50 cursor-not-allowed text-gray-500'
+            : 'border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400'
+        } resize-none ${className || ''}`}
         {...props}
       />
     </div>

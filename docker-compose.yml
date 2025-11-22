@@ -1,21 +1,33 @@
-version: '3.8'
-
 services:
   mongodb:
     image: mongo:latest
-    container_name: mongodb_learn_next
+    container_name: LearnHub_mongodb
     ports:
-      - '27017:27017'
+      - "27017:27017"
     volumes:
-      - mongodb_data:/data/db
-      - ./init-replica.js:/docker-entrypoint-initdb.d/init-replica.js:ro
-    command: mongod --replSet rs0 --bind_ip_all
+      - learnhub_mongodb_data:/data/db
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
     networks:
-      - mongo_network
+      - learnhub_network
+    entrypoint:
+      - bash
+      - -c
+      - |
+        /usr/local/bin/docker-entrypoint.sh mongod --replSet rs0 --bind_ip_all &
+        until mongosh --eval "print('waited for connection')" > /dev/null 2>&1; do sleep 1; done
+        mongosh --eval "rs.initiate({_id: 'rs0', members: [{_id: 0, host: 'localhost:27017'}]})" || true
+        wait
 
   mongo-express:
     image: mongo-express:latest
-    container_name: mongo-express
+    container_name: LearnHub_mongo-express
     ports:
       - "8081:8081"
     environment:
@@ -25,12 +37,14 @@ services:
       ME_CONFIG_MONGODB_AUTH: "false"
       ME_CONFIG_BASICAUTH: "false"
     depends_on:
-      - mongodb
+      mongodb:
+        condition: service_healthy
+    restart: unless-stopped
     networks:
-      - mongo_network
+      - learnhub_network
 
 networks:
-  mongo_network:
+  learnhub_network:
 
 volumes:
-  mongodb_data:
+  learnhub_mongodb_data:

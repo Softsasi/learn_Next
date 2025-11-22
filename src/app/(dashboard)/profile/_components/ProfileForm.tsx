@@ -1,12 +1,12 @@
 'use client';
 import { Button } from '@/components/ui/button';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
 } from '@/components/ui/card';
 import { IUser } from '@/types';
 import { fromISODateTime } from '@/utils';
@@ -64,15 +64,15 @@ export const ProfileForm = ({ userInfo }: ProfileFormProps) => {
       </div>
 
       {/* Personal Information Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Personal Information</CardTitle>
-          <CardDescription>Your basic profile information</CardDescription>
+      <Card className="border-0 shadow-sm hover:shadow-md transition-shadow duration-300 bg-white">
+        <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100 pb-4">
+          <CardTitle className="text-xl font-bold text-gray-800">👤 Personal Information</CardTitle>
+          <CardDescription className="text-gray-600">Your basic profile information</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-5 pt-6">
           <input type="hidden" {...register('userId')} value={userInfo?.id} />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <ProfileFormField
               id="firstName"
               label="First Name"
@@ -97,21 +97,21 @@ export const ProfileForm = ({ userInfo }: ProfileFormProps) => {
           <ProfileTextAreaField
             id="bio"
             label="Bio"
-            placeholder="Tell us about yourself"
+            placeholder="Tell us about yourself..."
             {...register('bio')}
           />
         </CardContent>
       </Card>
 
       {/* Account Information Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Account Information</CardTitle>
-          <CardDescription>
+      <Card className="border-0 shadow-sm hover:shadow-md transition-shadow duration-300 bg-white">
+        <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 border-b border-purple-100 pb-4">
+          <CardTitle className="text-xl font-bold text-gray-800">🔐 Account Information</CardTitle>
+          <CardDescription className="text-gray-600">
             Your account details and credentials
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-5 pt-6">
           <ProfileFormField
             id="email"
             label="Email Address"
@@ -120,26 +120,27 @@ export const ProfileForm = ({ userInfo }: ProfileFormProps) => {
             {...register('email')}
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <ProfileFormField
               id="role"
               label="Role"
               readOnly
               {...register('role')}
             />
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700 block">
+            <div className="space-y-2.5">
+              <label className="text-sm font-semibold text-gray-700 block">
                 Verification Status
               </label>
-              <div className="h-9 flex items-center">
+              <div className="h-10 flex items-center">
                 <span
-                  className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                  className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
                     userInfo?.verified
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-yellow-100 text-yellow-800'
+                      ? 'bg-green-100 text-green-700 border border-green-300'
+                      : 'bg-yellow-100 text-yellow-700 border border-yellow-300'
                   }`}
                 >
-                  {userInfo?.verified ? '✓ Verified' : 'Pending Verification'}
+                  <span className={`w-2 h-2 rounded-full mr-2 ${userInfo?.verified ? 'bg-green-600' : 'bg-yellow-600'}`}></span>
+                  {userInfo?.verified ? '✓ Verified' : '⏳ Pending Verification'}
                 </span>
               </div>
             </div>
@@ -148,12 +149,12 @@ export const ProfileForm = ({ userInfo }: ProfileFormProps) => {
       </Card>
 
       {/* Contact Information Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Contact Information</CardTitle>
-          <CardDescription>How people can reach you</CardDescription>
+      <Card className="border-0 shadow-sm hover:shadow-md transition-shadow duration-300 bg-white">
+        <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b border-green-100 pb-4">
+          <CardTitle className="text-xl font-bold text-gray-800">📞 Contact Information</CardTitle>
+          <CardDescription className="text-gray-600">How people can reach you</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-5 pt-6">
           <ProfileFormField
             id="phone"
             label="Phone Number"
@@ -169,9 +170,12 @@ export const ProfileForm = ({ userInfo }: ProfileFormProps) => {
             {...register('address')}
           />
         </CardContent>
-        <CardFooter className="border-t pt-6">
-          <Button type="submit" className="w-full md:w-auto">
-            Update Profile
+        <CardFooter className="border-t border-gray-200 pt-6 bg-gray-50 rounded-b-lg">
+          <Button
+            type="submit"
+            className="w-full md:w-auto bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-2.5 px-8 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105"
+          >
+            💾 Update Profile
           </Button>
         </CardFooter>
       </Card>

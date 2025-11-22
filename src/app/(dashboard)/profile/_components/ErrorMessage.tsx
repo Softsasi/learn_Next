@@ -4,13 +4,13 @@ interface ErrorMessageProps {
 
 export const ErrorMessage = ({ message }: ErrorMessageProps) => {
   return (
-    <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-      <div className="flex items-center">
-        <div className="flex-shrink-0">
+    <div className="rounded-xl border-2 border-red-300 bg-gradient-to-r from-red-50 to-red-100 p-6 shadow-sm">
+      <div className="flex items-start space-x-4">
+        <div className="flex-shrink-0 mt-0.5">
           <svg
-            className="h-5 w-5 text-red-400"
-            viewBox="0 0 20 20"
+            className="h-6 w-6 text-red-600"
             fill="currentColor"
+            viewBox="0 0 20 20"
           >
             <path
               fillRule="evenodd"
@@ -19,9 +19,15 @@ export const ErrorMessage = ({ message }: ErrorMessageProps) => {
             />
           </svg>
         </div>
-        <div className="ml-3">
-          <h3 className="text-sm font-medium text-red-800">Error</h3>
-          <div className="mt-1 text-sm text-red-700">{message}</div>
+        <div className="flex-1">
+          <h3 className="text-base font-bold text-red-900">Something went wrong</h3>
+          <div className="mt-2 text-sm text-red-800 leading-relaxed">{message}</div>
+          <div className="mt-4 flex items-center space-x-2 text-xs text-red-700">
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v-3h8v3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
+            </svg>
+            <span>Please try again or contact support</span>
+          </div>
         </div>
       </div>
     </div>

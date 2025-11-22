@@ -45,7 +45,7 @@ enum VerificationStatus {
 
 /**
  * ============================== ==============================
- * VerificationCode MLoginHistory Model
+ * VerificationCoded Model
  * ============================== ==============================
  */
 model VerificationCode {
@@ -62,7 +62,7 @@ model VerificationCode {
 
 /**
  * ============================== ==============================
- * odel
+ * LoginHistory Model
  * ============================== ==============================
  */
 model LoginHistory {
@@ -86,7 +86,7 @@ model UserProfile {
   id        String    @id @default(auto()) @map("_id") @db.ObjectId
   firstName String
   lastName  String
-  bio      String?
+  bio       String?
   dob       DateTime?
   phone     String?
   address   String?
@@ -103,14 +103,14 @@ model UserProfile {
  * ============================== ==============================
  */
 model AuthUser {
-  id        String        @id @default(auto()) @map("_id") @db.ObjectId
-  email     String        @unique
-  password  String
-  role      Role          @default(STUDENT)
-  verified  Boolean       @default(false)
-  status    AccountStatus @default(PENDING)
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
+  id                String             @id @default(auto()) @map("_id") @db.ObjectId
+  email             String             @unique
+  password          String
+  role              Role               @default(STUDENT)
+  verified          Boolean            @default(false)
+  status            AccountStatus      @default(PENDING)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
   user              UserProfile?       @relation
   loginHistories    LoginHistory[]
   verificationCodes VerificationCode[]
