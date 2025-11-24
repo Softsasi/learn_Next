@@ -56,7 +56,9 @@ export function Navbar() {
 
         {user ? (
           <div className="flex items-center space-x-4">
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300" onClick={()=> {
+              route.push('/profile');
+            }}>
               Hello, {user.email}
             </span>
 

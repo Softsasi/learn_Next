@@ -46,6 +46,9 @@ const ProfileImageUpload = ({
       console.log('Upload response:', res.data);
     } catch (err) {
       console.error('Error uploading file:', err);
+      toast.error('Failed to upload image. Please try again.');
+    } finally {
+      setUploading(false);
     }
   };
 

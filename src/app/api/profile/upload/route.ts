@@ -1,3 +1,5 @@
+
+import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { v2 as cloudinary } from 'cloudinary';
 import { NextRequest, NextResponse } from 'next/server';
@@ -32,9 +34,12 @@ export async function POST(req: NextRequest) {
         const uploadStream = cloudinary.uploader.upload_stream(
           {
             folder: 'profiles',
+             public_id: `profiles/user_${userId}`,
             resource_type: 'auto',
             use_filename: true,
             unique_filename: false,
+            overwrite: true, // This ensures old image is replaced
+            invalidate: true,
           },
           (error, result) => {
             if (error) reject(error);
@@ -50,11 +55,14 @@ export async function POST(req: NextRequest) {
     // Perform upload
     const result = await uploadToCloudinary(buffer);
 
+    logger.debug('Cloudinary upload result:', result);
+
     // Update database record
     await prisma.userProfile.update({
       where: { id: userId },
       data: {
         avatarUrl: result.secure_url,
+         avatarPublicId: result.public_id,
       },
     });
 
