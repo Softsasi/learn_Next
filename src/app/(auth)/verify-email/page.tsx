@@ -1,7 +1,14 @@
+import { verifyEmailAction } from '../actions';
 
-const verifyEmail = () => {
+
+const verifyEmail = async ({searchParams}: {searchParams: Promise<{code: string}>}) => {
+  const {code} = await searchParams;
+
+  const verifyResult = await verifyEmailAction(code);
+
+
   return (
-    <div>verify</div>
+    <div>verify {code}</div>
   )
 }
 
