@@ -3,7 +3,7 @@
 import { useAuth } from '@/context/authProvider';
 import { IUser } from '@/types';
 import { useEffect, useState } from 'react';
-import { getUserInfo } from '../actions';
+import { getUserInfo } from '../_actions';
 import { ErrorMessage } from './_components/ErrorMessage';
 import { ProfileForm } from './_components/ProfileForm';
 import { ProfileHeader } from './_components/ProfileHeader';

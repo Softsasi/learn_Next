@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 
 export function Navbar() {
   const route = useRouter();
+  
   const { user, logout } = useAuth();
 
   return (

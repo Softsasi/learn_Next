@@ -25,7 +25,7 @@ const page = async () => {
 
       <ul className="mt-4 space-y-2">
         {users ? (
-          users.map((user) => {
+          users.map((user:any) => {
             return (
               <li className="p-2 border rounded bg-white shadow" key={user.id}>
                 <p className="font-medium">ID: {user.id}</p>

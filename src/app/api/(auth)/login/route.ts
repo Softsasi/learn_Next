@@ -1,11 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-
 import { loginService } from '../../_services/auth/login';
-
-
-
-
-
 
 export async function POST(request: NextRequest) {
   // Parse the request body
