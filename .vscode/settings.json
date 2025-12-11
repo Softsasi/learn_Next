@@ -20,5 +20,12 @@
     "*.test.ts": "typescript",
     "*.e2e-spec.ts": "typescript",
     "stdio.h": "c"
-  }
+  },
+  "mdb.presetConnections": [
+    {
+      "name": "Preset Connection",
+      "connectionString": "mongodb://localhost:27017"
+    }
+  ],
+  "files.autoSaveDelay": 5000
 }

@@ -91,7 +91,7 @@ model UserProfile {
   phone     String?
   address   String?
   avatarUrl String?
-  avatarPublicId String? 
+  avatarPublicId String?
   authUser  AuthUser  @relation(fields: [id], references: [id])
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -106,10 +106,12 @@ model UserProfile {
 model AuthUser {
   id                String             @id @default(auto()) @map("_id") @db.ObjectId
   email             String             @unique
-  password          String
+  password          String?
   role              Role               @default(STUDENT)
   verified          Boolean            @default(false)
   status            AccountStatus      @default(PENDING)
+  provider          String @default("local")
+  providerId        String?
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
   user              UserProfile?       @relation

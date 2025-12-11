@@ -1,6 +1,6 @@
 import LoginForm from '../_componnets/LoginForm';
 import SidePanel from '../_componnets/SidePanel';
-import SocialLoginButtonLogin from '../_componnets/SocialLoginButtonLogin';
+import SocialLoginButton from '../_componnets/SocialLoginButton';
 
 const SigninPage = () => {
 
@@ -15,7 +15,7 @@ const SigninPage = () => {
             <p className="mt-2 text-gray-600">Sign in to your account</p>
           </div>
           <LoginForm />
-          <SocialLoginButtonLogin />
+          <SocialLoginButton role="student" />
         </div>
       </div>
     </div>

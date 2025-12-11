@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { logger } from './lib/logger';
-import { verifyToken } from './utils/jwt';
+import { auth } from './auth';
 
 
 const PUBLIC_ROUTES = [
@@ -13,33 +12,27 @@ const PUBLIC_ROUTES = [
   //  '/posts/:path*'
 ]
 
-export async function  proxy(request: NextRequest) {
-  logger.log(request.headers.get('user-agent'));
-
-  const cookies = request.headers.get('cookie') || '';
-  const authToken = cookies?.split('=')[1]?.split(';')[0];
+ async function  middleware(req: NextRequest & { auth?: any }) {
+     const isAuthenticated = !!req.auth;
 
   // Allow the request to proceed if it's for a public route
-  if (PUBLIC_ROUTES.includes(request.nextUrl.pathname)) {
+  if (PUBLIC_ROUTES.includes(req.nextUrl.pathname)) {
     return NextResponse.next();
   }
 
   // If the request is not for a public route, check for an auth token
-  if (!authToken) {
-    return NextResponse.redirect(new URL('/signin', request.url));
+  if (!isAuthenticated) {
+    return NextResponse.redirect(new URL('/signin', req.url));
   }
 
-  // validate the auth token here (this is just a placeholder, implement your own logic)
-  const isValidToken = await verifyToken(authToken);
-  logger.log('Token valid:', isValidToken);
+  // if (!isValidToken) {
+  //   return NextResponse.redirect(new URL('/signin?error=invalid_token', req.url));
+  // }
 
-  if (!isValidToken) {
-    return NextResponse.redirect(new URL('/signin', request.url));
-  }
-
-  // If the request has an auth token, allow it to proceed
   return NextResponse.next();
 }
+
+export default auth(middleware)
 
 export const config  = {
   matcher: '/((?!api|_next/static|_next/image|.*\\.png$).*)',

@@ -1,14 +1,35 @@
 'use client';
 
-import Link from 'next/link';
 
+import { signIn } from 'next-auth/react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 type SocialLoginButtonProps = {
   role: 'student' | 'teacher';
 };
 
 const SocialLoginButton = ({ role }: SocialLoginButtonProps) => {
-  const handleSocialLogin = (provider: string) => {
+
+
+  const pathname = usePathname();
+
+  const isLogin = pathname === '/signin';
+
+
+
+  const handleSocialLogin = async (provider: string) => {
     console.log(`Logging in with ${provider}`);
+    try {
+      // await doSocialLogin(provider.toLowerCase());
+
+    await  signIn(provider.toLowerCase(),{
+      redirectTo: isLogin ? '/dashboard' : '/welcome'
+    } )
+
+
+    } catch (error) {
+      console.error("Login failed:", error);
+    }
   };
 
   return (
@@ -25,7 +46,11 @@ const SocialLoginButton = ({ role }: SocialLoginButtonProps) => {
       </div>
 
       <div className="grid grid-cols-3 gap-3">
+        {/* google   */}
+
+
         <button
+          type="button"
           onClick={() => handleSocialLogin('Google')}
           className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
         >
@@ -37,7 +62,10 @@ const SocialLoginButton = ({ role }: SocialLoginButtonProps) => {
           </svg>
         </button>
 
+
+
         <button
+          type="button"
           onClick={() => handleSocialLogin('GitHub')}
           className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
         >
@@ -51,6 +79,7 @@ const SocialLoginButton = ({ role }: SocialLoginButtonProps) => {
         </button>
 
         <button
+          type="button"
           onClick={() => handleSocialLogin('Microsoft')}
           className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
         >
@@ -60,14 +89,30 @@ const SocialLoginButton = ({ role }: SocialLoginButtonProps) => {
         </button>
       </div>
 
+
+
       <p className="text-center text-sm text-gray-600">
-        Already have an account?{' '}
-        <a
-          href="/signin"
-          className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
-        >
-          Sign in
-        </a>
+        {isLogin ? (
+          <>
+            Don't have an account?{' '}
+            <a
+              href={`/signup?role=${role}`}
+              className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+            >
+              Sign up
+            </a>
+          </>
+        ) : (
+          <>
+            Already have an account?{' '}
+            <a
+              href="/signin"
+              className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+            >
+              Sign in
+            </a>
+          </>
+        )}
       </p>
 
       <div className="flex justify-center *:mb-4 ">
@@ -93,6 +138,8 @@ const SocialLoginButton = ({ role }: SocialLoginButtonProps) => {
           </span>
         )}
       </div>
+
+
     </div>
   );
 };

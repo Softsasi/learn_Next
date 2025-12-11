@@ -1,4 +1,5 @@
 'use client';
+import { useSearchParams } from 'next/navigation';
 import { createContext, useContext, useEffect, useReducer } from 'react';
 
 type IUser = {
@@ -46,6 +47,24 @@ export const authContext = createContext<IAuthContext | null>(null);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const [user, dispatch] = useReducer(userReducer, null);
+
+  const searchParams = useSearchParams()
+  const error = searchParams.get('error');
+
+  useEffect(() => {
+    if (error && error === 'invalid_token') {
+      // remove any existing user data on error
+      dispatch({
+        type: 'LOGOUT_USER',
+        payload: null,
+      });
+      localStorage.removeItem('user');
+    }
+  }, [error]);
+
+
+
+
 
   useEffect(() => {
     const userData = localStorage.getItem('user');

@@ -11,12 +11,12 @@ type LoginHistory = {
   attempt: LoginAttemptStatus;
 };
 
-const createLoginHistory = async (loginHistory: LoginHistory) => {
+export const createLoginHistory = async (loginHistory: LoginHistory) => {
   await prisma.loginHistory.create({
     data: {
       userId: loginHistory.userId,
-      userAgent: loginHistory.userAgent,
-      ipAddress: loginHistory.ipAddress,
+      userAgent: loginHistory.userAgent ?? 'Unknown',
+      ipAddress: loginHistory.ipAddress ?? 'Unknown',
       attempt: loginHistory.attempt,
     },
   });
@@ -24,7 +24,7 @@ const createLoginHistory = async (loginHistory: LoginHistory) => {
 
 
 
-export const loginService = async(email: string, password: string, userAgent: string, ipAddress: string)=>{
+export const loginService = async(email: string, password: string, userAgent?: "unknown", ipAddress?: "unknown")=>{
 
   // step 1: find user in database by email
    const existUser = await prisma.authUser.findUnique({
@@ -55,7 +55,7 @@ export const loginService = async(email: string, password: string, userAgent: st
 
 
 
-    const isPasswordValid = await argon2.verify(existUser.password, password, {
+    const isPasswordValid = await argon2.verify(existUser.password!, password, {
       secret: Buffer.from(AppConfig.argon2Secret),
     });
 
@@ -80,7 +80,7 @@ export const loginService = async(email: string, password: string, userAgent: st
     attempt: LoginAttemptStatus.SUCCESS,
   });
 
-    const date = {
+    const data = {
       userId: existUser.id,
       email: existUser.email,
       role: existUser.role,
@@ -90,10 +90,10 @@ export const loginService = async(email: string, password: string, userAgent: st
     };
 
     const token = generateToken(
-      date,
+      data,
       AppConfig.JWT_EXPIRES_IN as unknown as number
     );
 
 
-    return { date, token };
+    return { data, token };
 }

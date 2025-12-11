@@ -1,9 +1,9 @@
 'use client';
 
-import AppConfig from '@/config/appConfig';
 import { useAuth } from '@/context/authProvider';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { doLogin } from '../actions/auth';
 
 const LoginForm = () => {
   const [formData, setFormData] = useState({
@@ -14,6 +14,9 @@ const LoginForm = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const router = useRouter();
   const { login } = useAuth();
+
+
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -51,25 +54,23 @@ const LoginForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
-      const res = await fetch(`${AppConfig.apiUrl}/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
 
-      const data = await res.json();
 
-      if (data.code !== 200) {
-        setErrors({ general: data.message || 'Login failed' });
-        return;
-      }
+      // const res = await fetch(`${AppConfig.apiUrl}/login`, {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify(formData),
+      // });
 
-      login({
-        userId: data.userId,
-        email: data.email,
-      });
+      const res = await doLogin(
+        formData.email,
+        formData.password,
+        formData.rememberMe
+      )
+
+
 
       setTimeout(() => {
         router.push('/posts');

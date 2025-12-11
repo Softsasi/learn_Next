@@ -25,23 +25,28 @@ services:
         mongosh --eval "rs.initiate({_id: 'rs0', members: [{_id: 0, host: 'localhost:27017'}]})" || true
         wait
 
-  mongo-express:
-    image: mongo-express:latest
-    container_name: LearnHub_mongo-express
-    ports:
-      - "8081:8081"
-    environment:
-      ME_CONFIG_MONGODB_SERVER: mongodb
-      ME_CONFIG_MONGODB_PORT: 27017
-      ME_CONFIG_MONGODB_ENABLE_ADMIN: "true"
-      ME_CONFIG_MONGODB_AUTH: "false"
-      ME_CONFIG_BASICAUTH: "false"
-    depends_on:
-      mongodb:
-        condition: service_healthy
-    restart: unless-stopped
-    networks:
-      - learnhub_network
+  # mongo-express:
+  #   image: mongo-express:latest
+  #   container_name: LearnHub_mongo-express
+  #   ports:
+  #     - "8081:8081"
+  #   environment:
+  #     ME_CONFIG_MONGODB_URL: mongodb://mongodb:27017/?replicaSet=rs0
+
+  #     # No auth in Mongo for now
+  #     ME_CONFIG_MONGODB_ENABLE_ADMIN: "true"
+  #     ME_CONFIG_MONGODB_AUTH: "false"
+
+  #     # Disable mongo-express basic auth in dev
+  #     ME_CONFIG_BASICAUTH_USERNAME: ""
+  #     ME_CONFIG_BASICAUTH_PASSWORD: ""
+  #     ME_CONFIG_BASICAUTH: "false"
+  #   depends_on:
+  #     mongodb:
+  #       condition: service_healthy
+  #   restart: unless-stopped
+  #   networks:
+  #     - learnhub_network
 
 networks:
   learnhub_network:
