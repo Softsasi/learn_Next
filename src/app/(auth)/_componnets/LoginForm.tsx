@@ -67,14 +67,8 @@ const LoginForm = () => {
       const res = await doLogin(
         formData.email,
         formData.password,
-        formData.rememberMe
-      )
+      );
 
-
-
-      setTimeout(() => {
-        router.push('/posts');
-      }, 1000);
     }
   };
 

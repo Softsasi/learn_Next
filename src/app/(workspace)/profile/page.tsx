@@ -1,6 +1,6 @@
 'use client';
 
-import { useAuth } from '@/context/authProvider';
+import { useXSession } from '@/provider/XSessionProvider';
 import { IUser } from '@/types';
 import { useEffect, useState } from 'react';
 import { getUserInfo } from '../_actions';
@@ -9,13 +9,30 @@ import { ProfileForm } from './_components/ProfileForm';
 import { ProfileHeader } from './_components/ProfileHeader';
 import { ProfileSkeleton } from './_components/ProfileSkeleton';
 
+
+
+
 const ProfilePage = () => {
-  const { user } = useAuth();
+   const {user} = useXSession();
+
+
+
+// {
+//     "name": "Nomlanga Woods",
+//     "email": "tujaluj@mailinator.com",
+//     "image": null,
+//     "id": "694150771c44b147e40a4f2f",
+//     "role": "STUDENT"
+// }
+
+
   const [userInfo, setUserInfo] = useState<IUser | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
   const fetchUserInfo = async (userId: string) => {
+    console.log("userId", userId);
+
     try {
       setLoading(true);
       setError(null);
@@ -36,8 +53,10 @@ const ProfilePage = () => {
   };
 
   useEffect(() => {
+
     if (user) {
-      fetchUserInfo(user.userId);
+
+      fetchUserInfo(user.id);
     }
 
     return () => {

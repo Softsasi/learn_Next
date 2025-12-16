@@ -24,7 +24,7 @@ export const createLoginHistory = async (loginHistory: LoginHistory) => {
 
 
 
-export const loginService = async(email: string, password: string, userAgent?: "unknown", ipAddress?: "unknown")=>{
+export const loginService = async(email: string, password: string, userAgent?: string, ipAddress?: string)=>{
 
   // step 1: find user in database by email
    const existUser = await prisma.authUser.findUnique({

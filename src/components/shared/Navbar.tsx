@@ -1,15 +1,16 @@
 'use client';
 
+import { doLogout } from '@/app/(auth)/actions/auth';
 import { cn } from '@/lib/utils';
-import { signOut, useSession } from 'next-auth/react';
+import { useXSession } from '@/provider/XSessionProvider';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 export function Navbar() {
   const route = useRouter();
-  const {data} = useSession();
-  const user = data?.user;
+  const session = useXSession();
 
+  const user = session?.user;
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -68,9 +69,8 @@ export function Navbar() {
               className={cn(
                 'text-sm font-medium text-white bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 px-4 py-2 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md'
               )}
-              onClick={() => {
-                signOut();
-                route.push('/signin');
+              onClick={async() => {
+                await doLogout();
               }}
             >
               Sign Out

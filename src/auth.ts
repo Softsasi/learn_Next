@@ -2,8 +2,23 @@ import { prisma } from '@/lib/prisma';
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
+import { headers } from 'next/headers';
 import { createLoginHistory, loginService } from './app/api/_services/auth/login';
 import { logger } from './lib/logger';
+
+// Helper function to get user IP address
+function getUserIP(headersList: any): string | undefined {
+  const forwarded = headersList.get("x-forwarded-for");
+  if (forwarded) {
+    return forwarded.split(',')[0].trim();
+  }
+  return headersList.get("x-real-ip") || undefined;
+}
+
+// Helper function to get user agent
+function getUserAgent(headersList: any): string | undefined {
+  return headersList.get("user-agent") || undefined;
+}
 
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -58,7 +73,6 @@ password: {
   },
 
   authorize: async (credentials)=> {
-      let user = null;
 
       const { email, password } = credentials;
 
@@ -66,30 +80,32 @@ password: {
         return null;
       }
 
+      // Get request headers for tracking
+      const headersList = await headers();
+      const ipAddress = getUserIP(headersList);
+      const userAgent = getUserAgent(headersList);
 
      const result= await loginService(
         email as string,
         password as string,
-        undefined,
-        undefined,
+        userAgent,
+        ipAddress,
 
       ) as any;
 
-      const userData = result.data;
+        const user = result?.data
+        if (!user) return null
 
-      console.log("userData", userData);
-
-
-
-      return userData ? {
-        id: userData.userId,
-        name: userData.firstName + " " + userData.lastName,
-        email: userData.email,
-        role: userData.role,
-        image: userData.avatarUrl,
-      } : null;
+        console.log("[AUTH] User logged in:", user);
 
 
+         return {
+          id: user.userId,
+          email: user.email,
+          name: `${user.firstName} ${user.lastName}`,
+          role: user.role,
+          image: user.avatarUrl ?? null,
+        }
   }
 
   })
@@ -105,11 +121,18 @@ password: {
       profile,
     }) {
 
+      // Get request headers for tracking
+      const headersList = await headers();
+      const ipAddress = getUserIP(headersList);
+      const userAgent = getUserAgent(headersList);
+
       // Custom sign-in logic
       logger.log({
         user,
         account,
         profile,
+        ipAddress,
+        userAgent,
       })
 
 
@@ -154,18 +177,25 @@ password: {
 
            await createLoginHistory({
             userId: authUser.id,
-            userAgent: undefined,
-            ipAddress: undefined,
+            userAgent: userAgent,
+            ipAddress: ipAddress,
             attempt: "SUCCESS",
            })
-
-           return true;
+        } else {
+          // For existing users, also create login history
+          await createLoginHistory({
+            userId: authUser.id,
+            userAgent: userAgent,
+            ipAddress: ipAddress,
+            attempt: "SUCCESS",
+          })
         }
 
+        user.id = authUser.id;
+        (user as any).role = authUser.role
 
-
+        return true;
       }
-
       return true;
 
     },
@@ -175,18 +205,14 @@ password: {
       token,
       user,
     }){
-
-      // logger.debug("JWT callback", {
-      //   token,
-      // })
-
-      //  token = {
-      //   ...token,
-      //   role: user?.role || token.role || "STUDENT",
-      //   image: user?.image || token.image,
-      // }
-
-
+      // Run when user sign in
+       if (user) {
+        token.userId = user.id
+        token.email = user.email
+        token.name = user.name
+        token.role = (user as any).role ?? "STUDENT"
+        token.picture = user.image
+      }
 
       return token;
     },
@@ -194,12 +220,17 @@ password: {
     async session({
       session,
       token,
-
     }){
 
+       if (session.user) {
+        session.user.id = token.userId as string
+        session.user.email = token.email as string
+        session.user.name = token.name as string
+        session.user.role = token.role as string
+        session.user.image = token.picture as string | null
+      }
 
-
-      return session;
+      return session
     }
 
   }

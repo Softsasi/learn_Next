@@ -1,7 +1,6 @@
 'use server';
 
-import { signIn } from "@/auth";
-import { logger } from '@/lib/logger';
+import { signIn, signOut } from "@/auth";
 
 export async function doSocialLogin(provider: string) {
   console.log("Attempting social login with:", provider);
@@ -13,20 +12,33 @@ export async function doSocialLogin(provider: string) {
   }
 }
 
-export async function doLogin(email: string, password: string, rememberMe?: boolean) {
-  console.log("Attempting login with:", email, rememberMe);
 
+import { redirect } from "next/navigation";
+
+export async function doLogin(email: string, password: string) {
   try {
-    const res = await signIn("credentials", {
+    await signIn("credentials", {
       email,
       password,
-      redirectTo: "/dashboard",
-    })
+      redirect: false,
+    });
 
-    logger.log("Login response:", res);
+    redirect("/");
+  } catch (err: any) {
+    if (err?.type === "CredentialsSignin") {
+      return { error: "Invalid email or password" };
+    }
 
-  } catch (err) {
-    logger.error("Login error:", err);
+    throw err;
   }
+}
 
+
+export async function doLogout() {
+  try {
+    await signOut({ redirectTo: "/signin" });
+  } catch (error) {
+    console.error("Logout error:", error);
+    throw error;
+    }
 }
