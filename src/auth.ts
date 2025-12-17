@@ -2,7 +2,7 @@ import { prisma } from '@/lib/prisma';
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
-import { headers } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { createLoginHistory, loginService } from './app/api/_services/auth/login';
 import { logger } from './lib/logger';
 
@@ -18,6 +18,15 @@ function getUserIP(headersList: any): string | undefined {
 // Helper function to get user agent
 function getUserAgent(headersList: any): string | undefined {
   return headersList.get("user-agent") || undefined;
+}
+
+
+async function getOAuthRole(): Promise<"STUDENT" | "TEACHER"> {
+  const cookieStore = await cookies();
+  const role = cookieStore.get("oauth_role")?.value;
+
+  if (role === "teacher" ) return "TEACHER";
+  return "STUDENT";
 }
 
 
@@ -53,7 +62,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       params:{
         prompt: "consent",
         access_type: "offline",
-        response_type: "code"
+        response_type: "code",
       }
     }
   }),
@@ -98,7 +107,6 @@ password: {
 
         console.log("[AUTH] User logged in:", user);
 
-
          return {
           id: user.userId,
           email: user.email,
@@ -139,6 +147,8 @@ password: {
       if (account?.provider === "google") {
         const email = user.email;
 
+       const role = await getOAuthRole();
+
         if (!email) {
           return false;
         }
@@ -157,7 +167,7 @@ password: {
            authUser = await prisma.authUser.create({
             data: {
               email: email,
-              role: "STUDENT",
+              role: role,
               verified: true,
               status: "ACTIVE",
               provider: "google",

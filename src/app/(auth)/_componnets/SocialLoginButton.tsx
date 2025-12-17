@@ -17,13 +17,26 @@ const SocialLoginButton = ({ role }: SocialLoginButtonProps) => {
 
 
 
+  function setOAuthRole(role: "student" | "teacher") {
+  document.cookie = [
+    `oauth_role=${role.toLocaleLowerCase()}`,
+    "Path=/",
+    "Max-Age=300",          // 5 minutes
+    "SameSite=Lax",
+    "Secure",               // HTTPS only
+  ].join("; ");
+}
+
+
+
+
   const handleSocialLogin = async (provider: string) => {
     console.log(`Logging in with ${provider}`);
     try {
-      // await doSocialLogin(provider.toLowerCase());
+      setOAuthRole(role);
 
     await  signIn(provider.toLowerCase(),{
-      redirectTo: isLogin ? '/dashboard' : '/welcome'
+      redirectTo: isLogin ? '/profile' : '/dashboard',
     } )
 
 
