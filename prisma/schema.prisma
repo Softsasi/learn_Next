@@ -83,19 +83,23 @@ model LoginHistory {
  * ============================== ==============================
  */
 model UserProfile {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  firstName String
-  lastName  String
-  bio       String?
-  dob       DateTime?
-  phone     String?
-  address   String?
-  avatarUrl String?
-  avatarPublicId String?
-  authUser  AuthUser  @relation(fields: [id], references: [id])
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  posts     Post[]
+  id               String            @id @default(auto()) @map("_id") @db.ObjectId
+  firstName        String
+  lastName         String
+  bio              String?
+  dob              DateTime?
+  phone            String?
+  address          String?
+  avatarUrl        String?
+  avatarPublicId   String?
+  authUser         AuthUser          @relation(fields: [id], references: [id])
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  posts            Post[]
+  comments         Comment[]
+  commentReactions CommentReaction[]
+  postReactions    PostReaction[]
+  postBookmarks    PostBookmark[]
 }
 
 /**
@@ -110,7 +114,7 @@ model AuthUser {
   role              Role               @default(STUDENT)
   verified          Boolean            @default(false)
   status            AccountStatus      @default(PENDING)
-  provider          String @default("local")
+  provider          String             @default("local")
   providerId        String?
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
@@ -125,17 +129,109 @@ model AuthUser {
  * ============================== ==============================
  */
 model Post {
-  id        String       @id @default(auto()) @map("_id") @db.ObjectId
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
   title     String
   content   String
+  published Boolean  @default(false)
+  thumbnail String?
+  tags      String[]
+  slug      String   @unique
+  imageUrls String[] @default([])
+
   author    UserProfile? @relation(fields: [authorId], references: [id])
   authorId  String?      @db.ObjectId
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
 
+  likeCount     Int            @default(0)
+  commentCount  Int            @default(0)
+  viewCount     Int            @default(0)
+  comments      Comment[]
+  postReactions PostReaction[]
+  postBookmarks PostBookmark[]
+
   @@index([authorId])
 }
 
+model PostBookmark {
+  id        String      @id @default(auto()) @map("_id") @db.ObjectId
+  post      Post        @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    String      @db.ObjectId
+  user      UserProfile @relation(fields: [userId], references: [id])
+  userId    String      @db.ObjectId
+  createdAt DateTime    @default(now())
+
+  @@unique([postId, userId])
+}
+
+/**
+ * ============================== ==============================
+ * Engagement Models
+ * ============================== ==============================
+ */
+
+enum ReactionType {
+  LIKE
+  LOVE
+  CLAP
+  WOW
+  SAD
+  ANGRY
+}
+
+model Comment {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId String @db.ObjectId
+
+  author   UserProfile @relation(fields: [authorId], references: [id])
+  authorId String      @db.ObjectId
+
+  parentCommentId String?   @db.ObjectId
+  parentComment   Comment?  @relation("CommentToReplies", fields: [parentCommentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  replies         Comment[] @relation("CommentToReplies")
+
+  content          String
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  commentReactions CommentReaction[]
+
+  @@index([postId])
+  @@index([authorId])
+}
+
+model CommentReaction {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  comment   Comment @relation(fields: [commentId], references: [id], onDelete: NoAction)
+  commentId String  @db.ObjectId
+
+  user   UserProfile @relation(fields: [userId], references: [id])
+  userId String      @db.ObjectId
+
+  type      ReactionType
+  createdAt DateTime     @default(now())
+
+  @@unique([commentId, userId])
+  @@index([commentId])
+}
+
+model PostReaction {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId String @db.ObjectId
+
+  user   UserProfile @relation(fields: [userId], references: [id])
+  userId String      @db.ObjectId
+
+  type      ReactionType
+  createdAt DateTime     @default(now())
+
+  @@unique([postId, userId])
+  @@index([postId])
+}
 
 /**
  * ============================== ==============================

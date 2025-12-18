@@ -5,14 +5,14 @@ export async function POST(request: NextRequest) {
   const body = await request.json();
   console.table(body);
 
-  const { title, content, authorId } = body;
+  const { title, content, authorId, slug, published, thumbnail, tags, imageUrls } = body;
 
-  if (!title || !content || !authorId) {
+  if (!title || !content || !authorId || !slug) {
     return new Response(
       JSON.stringify({
         error: `Missing required fields ${!title ? 'title' : ''} ${
           !content ? 'content' : ''
-        } ${!authorId ? 'authorId' : ''}`,
+        } ${!authorId ? 'authorId' : ''} ${!slug ? 'slug' : ''}`,
       }),
       {
         status: 400,
@@ -26,6 +26,11 @@ export async function POST(request: NextRequest) {
       title,
       content,
       authorId,
+      slug,
+      published: published ?? false,
+      thumbnail,
+      tags: tags ?? [],
+      imageUrls: imageUrls ?? [],
     },
 
     omit: {

@@ -68,7 +68,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   }),
 
   Credentials({
-    credentials: {
+credentials: {
 email: {
   label: "Email",
   type: "email",
@@ -223,7 +223,6 @@ password: {
         token.role = (user as any).role ?? "STUDENT"
         token.picture = user.image
       }
-
       return token;
     },
 
@@ -231,7 +230,6 @@ password: {
       session,
       token,
     }){
-
        if (session.user) {
         session.user.id = token.userId as string
         session.user.email = token.email as string
