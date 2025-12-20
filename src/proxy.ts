@@ -9,14 +9,18 @@ const PUBLIC_ROUTES = [
   '/about',
   '/contact',
   '/posts',
-  //  '/posts/:path*'
-]
+];
 
- async function  middleware(req: NextRequest & { auth?: any }) {
-     const isAuthenticated = !!req.auth;
+async function middleware(req: NextRequest & { auth?: any }) {
+  const isAuthenticated = !!req.auth;
+  const { pathname } = req.nextUrl;
 
-  // Allow the request to proceed if it's for a public route
-  if (PUBLIC_ROUTES.includes(req.nextUrl.pathname)) {
+  // Check if the route is public
+  const isPublicRoute =
+    PUBLIC_ROUTES.includes(pathname) ||
+    pathname.startsWith('/posts/');
+
+  if (isPublicRoute) {
     return NextResponse.next();
   }
 

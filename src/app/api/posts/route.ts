@@ -64,6 +64,35 @@ export async function GET(req: NextRequest) {
 
   const [posts, totalPost] = await Promise.all([
     await prisma.post.findMany({
+      where: {
+        published: true,
+      },
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        author: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            avatarUrl: true,
+          }
+        },
+        createdAt: true,
+        updatedAt: true,
+        slug: true,
+        thumbnail: true,
+        tags: true,
+        likeCount: true,
+        commentCount: true,
+        viewCount: true
+      },
+
+      orderBy: {
+        createdAt: 'desc',
+      },
+
       take: limit,
       skip: skip,
     }),

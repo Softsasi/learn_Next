@@ -1,16 +1,30 @@
 'use client';
 
 import AppConfig from '@/config/appConfig';
+import { motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import PostItem, { PostItemSkeleton } from './PostItem';
+
+interface Author {
+  id: string;
+  firstName: string;
+  lastName: string;
+  avatarUrl: string | null;
+}
 
 interface Post {
   id: string;
   title: string;
   content: string;
-  authorId: string;
-  createdAt?: Date;
-  updatedAt?: Date;
+  author: Author;
+  createdAt: string;
+  updatedAt: string;
+  slug: string;
+  thumbnail: string | null;
+  tags: string[];
+  likeCount: number;
+  commentCount: number;
+  viewCount: number;
 }
 
 interface ApiResponse {
@@ -42,7 +56,7 @@ const PostList = () => {
   );
 
   const observerRef = useRef<HTMLDivElement | null>(null);
-  const isFetchingRef = useRef(false); // Prevents duplicate requests
+  const isFetchingRef = useRef(false);
 
   const fetchPosts = async (url: string) => {
     if (!url || isFetchingRef.current) return;
@@ -61,16 +75,14 @@ const PostList = () => {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
-      isFetchingRef.current = false; // release lock
+      isFetchingRef.current = false;
     }
   };
 
-  // Initial load
   useEffect(() => {
-    if (nextPageUrl) fetchPosts(nextPageUrl);
+    if (nextPageUrl && posts.length === 0) fetchPosts(nextPageUrl);
   }, []);
 
-  // Infinite scroll observer
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
       const entry = entries[0];
@@ -92,15 +104,21 @@ const PostList = () => {
     };
   }, [nextPageUrl, loading]);
 
-  // --- UI states ---
-
   if (error) {
-    return <div className="text-center text-red-600">Error: {error}</div>;
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        <div className="w-16 h-16 bg-red-100 dark:bg-red-900/20 text-red-600 rounded-full flex items-center justify-center mb-4">
+          <span className="text-2xl">⚠️</span>
+        </div>
+        <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">Something went wrong</h3>
+        <p className="text-gray-500 dark:text-gray-400 max-w-xs">{error}</p>
+      </div>
+    );
   }
 
   if (loading && posts.length === 0) {
     return (
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 6 }).map((_, i) => (
           <PostItemSkeleton key={`skeleton-${i}`} />
         ))}
@@ -110,13 +128,13 @@ const PostList = () => {
 
   if (!posts.length && !loading) {
     return (
-      <div className="text-center py-12">
-        <div className="text-6xl mb-4">📝</div>
-        <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">
-          No posts yet
+      <div className="flex flex-col items-center justify-center py-32 text-center">
+        <div className="text-7xl mb-6 grayscale opacity-50">📝</div>
+        <h3 className="text-2xl font-black text-gray-900 dark:text-gray-100 mb-3">
+          No stories found
         </h3>
-        <p className="text-gray-600 dark:text-gray-400">
-          Be the first to share something amazing!
+        <p className="text-gray-500 dark:text-gray-400 max-w-sm">
+          We couldn't find any posts at the moment. Check back later or be the first to share something!
         </p>
       </div>
     );
@@ -124,17 +142,29 @@ const PostList = () => {
 
   return (
     <>
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {posts.map((post) => (
-          <PostItem
+      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+        {posts.map((post, index) => (
+          <motion.div
             key={post.id}
-            id={post.id}
-            title={post.title}
-            content={post.content}
-            authorId={post.authorId}
-            createdAt={post.createdAt}
-            updatedAt={post.updatedAt}
-          />
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: (index % 15) * 0.05 }}
+          >
+            <PostItem
+              id={post.id}
+              title={post.title}
+              content={post.content}
+              author={post.author}
+              createdAt={post.createdAt}
+              updatedAt={post.updatedAt}
+              slug={post.slug}
+              thumbnail={post.thumbnail}
+              tags={post.tags}
+              likeCount={post.likeCount}
+              commentCount={post.commentCount}
+              viewCount={post.viewCount}
+            />
+          </motion.div>
         ))}
 
         {loading &&
@@ -144,9 +174,21 @@ const PostList = () => {
           ))}
       </div>
 
-      <div ref={observerRef} className="h-10 flex justify-center items-center">
-        {!nextPageUrl && !loading && (
-          <span className="text-gray-400">No more posts</span>
+      <div ref={observerRef} className="mt-20 mb-12 flex flex-col items-center justify-center gap-6">
+        {!nextPageUrl && !loading && posts.length > 0 && (
+          <div className="flex flex-col items-center gap-4">
+            <div className="h-px w-32 bg-linear-to-r from-transparent via-gray-200 to-transparent dark:via-gray-800" />
+            <span className="text-sm font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest">
+              End of stories
+            </span>
+          </div>
+        )}
+        {loading && posts.length > 0 && (
+          <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
+            <div className="w-2 h-2 bg-current rounded-full animate-bounce [animation-delay:-0.3s]" />
+            <div className="w-2 h-2 bg-current rounded-full animate-bounce [animation-delay:-0.15s]" />
+            <div className="w-2 h-2 bg-current rounded-full animate-bounce" />
+          </div>
         )}
       </div>
     </>
