@@ -1,6 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { formatDate } from '@/lib/utils';
+import { isValidUrl } from '@/utils/url';
 import { Calendar, Clock } from 'lucide-react';
 import Image from 'next/image';
 
@@ -73,7 +74,9 @@ export const PostHeader = ({
 
       {thumbnail && (
         <div className="relative aspect-video rounded-3xl overflow-hidden shadow-2xl border border-gray-100 dark:border-gray-800">
-          <Image
+          {
+            isValidUrl(thumbnail) ? (
+              <Image
             src={thumbnail}
             alt={title}
             fill
@@ -81,6 +84,14 @@ export const PostHeader = ({
             priority
             sizes="(max-width: 1280px) 100vw, 1200px"
           />
+            ) : (
+          <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20">
+            <span className="text-8xl font-black text-blue-200 dark:text-blue-900/30 select-none">
+              {title[0]}
+            </span>
+          </div>
+            )
+          }
         </div>
       )}
     </header>

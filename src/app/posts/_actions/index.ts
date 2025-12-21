@@ -189,3 +189,165 @@ export async function getPostReaction(postId: string) {
     return { reaction: null };
   }
 }
+
+export async function getComments(postId: string) {
+  try {
+    // Fetch all comments for this post to build a tree on the client or server
+    const allComments = await prisma.comment.findMany({
+      where: {
+        postId,
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            avatarUrl: true,
+          },
+        },
+        commentReactions: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    // Build the comment tree
+    const commentMap = new Map();
+    const rootComments: any[] = [];
+
+    allComments.forEach(comment => {
+      commentMap.set(comment.id, { ...comment, replies: [] });
+    });
+
+    allComments.forEach(comment => {
+      const commentWithReplies = commentMap.get(comment.id);
+      if (comment.parentCommentId && commentMap.has(comment.parentCommentId)) {
+        const parent = commentMap.get(comment.parentCommentId);
+        parent.replies.push(commentWithReplies);
+      } else {
+        rootComments.push(commentWithReplies);
+      }
+    });
+
+    return {
+      comments: rootComments,
+      totalCount: allComments.length,
+      success: true
+    };
+  } catch (error) {
+    console.error('Get comments error:', error);
+    return { error: 'Failed to fetch comments', success: false };
+  }
+}
+
+export async function addComment(postId: string, content: string, parentCommentId?: string) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return { error: 'You must be logged in to comment', success: false };
+    }
+
+    const userId = session.user.id;
+
+    const comment = await prisma.$transaction(async (tx) => {
+      const newComment = await tx.comment.create({
+        data: {
+          content,
+          postId,
+          authorId: userId,
+          parentCommentId: parentCommentId || null,
+        },
+        include: {
+          author: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              avatarUrl: true,
+            },
+          },
+        },
+      });
+
+      // Increment comment count on post
+      await tx.post.update({
+        where: { id: postId },
+        data: { commentCount: { increment: 1 } },
+      });
+
+      return newComment;
+    });
+
+    revalidatePath(`/posts/${postId}`);
+    return { comment, success: true };
+  } catch (error) {
+    console.error('Add comment error:', error);
+    return { error: 'Failed to add comment', success: false };
+  }
+}
+
+export async function toggleCommentReaction(commentId: string, type: ReactionType) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return { error: 'You must be logged in to react', success: false };
+    }
+
+    const userId = session.user.id;
+
+    const result = await prisma.$transaction(async (tx) => {
+      const existingReaction = await tx.commentReaction.findUnique({
+        where: {
+          commentId_userId: {
+            commentId,
+            userId,
+          },
+        },
+      });
+
+      if (existingReaction) {
+        if (existingReaction.type === type) {
+          // Remove reaction if same type
+          await tx.commentReaction.delete({
+            where: {
+              commentId_userId: {
+                commentId,
+                userId,
+              },
+            },
+          });
+          return { reacted: false, type: null };
+        } else {
+          // Update reaction type
+          const updated = await tx.commentReaction.update({
+            where: {
+              commentId_userId: {
+                commentId,
+                userId,
+              },
+            },
+            data: { type },
+          });
+          return { reacted: true, type: updated.type };
+        }
+      } else {
+        // Create new reaction
+        const created = await tx.commentReaction.create({
+          data: {
+            commentId,
+            userId,
+            type,
+          },
+        });
+        return { reacted: true, type: created.type };
+      }
+    });
+
+    return { ...result, success: true };
+  } catch (error) {
+    console.error('Comment reaction error:', error);
+    return { error: 'Failed to update reaction', success: false };
+  }
+}

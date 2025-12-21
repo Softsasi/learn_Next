@@ -14,9 +14,10 @@ import {
 } from "@/components/ui/tooltip";
 import { ReactionType } from '@/generated/prisma';
 import { Bookmark, Eye, MessageSquare, Share2, ThumbsUp } from 'lucide-react';
-import { useEffect, useState, useTransition } from 'react';
+import { memo, useCallback, useEffect, useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { getBookmarkStatus, getPostReaction, incrementViewCount, toggleBookmark, toggleReaction } from '../../_actions';
+import { CommentSidebar } from './CommentSidebar';
 
 interface PostEngagementProps {
   postId: string;
@@ -34,18 +35,24 @@ const REACTION_EMOJIS: Record<ReactionType, string> = {
   ANGRY: '😡',
 };
 
-export const PostEngagement = ({
+export const PostEngagement = memo(({
   postId,
   likeCount: initialLikeCount,
-  commentCount,
+  commentCount: initialCommentCount,
   viewCount: initialViewCount,
 }: PostEngagementProps) => {
   const [likes, setLikes] = useState(initialLikeCount);
   const [views, setViews] = useState(initialViewCount);
+  const [commentsCount, setCommentsCount] = useState(initialCommentCount);
   const [userReaction, setUserReaction] = useState<ReactionType | null>(null);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [isReactionPopoverOpen, setIsReactionPopoverOpen] = useState(false);
+  const [isCommentSidebarOpen, setIsCommentSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    setCommentsCount(initialCommentCount);
+  }, [initialCommentCount]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -130,6 +137,10 @@ export const PostEngagement = ({
     toast.success('Link copied to clipboard!');
   };
 
+  const handleCommentAdded = useCallback(() => {
+    setCommentsCount(prev => prev + 1);
+  }, []);
+
   return (
     <div className="sticky bottom-8 left-0 right-0 flex justify-center z-50 px-4">
       <div className="flex items-center gap-2 p-2 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-gray-200 dark:border-gray-800 rounded-full shadow-2xl">
@@ -189,9 +200,10 @@ export const PostEngagement = ({
           variant="ghost"
           size="sm"
           className="rounded-full gap-2 text-gray-600 dark:text-gray-400"
+          onClick={() => setIsCommentSidebarOpen(true)}
         >
           <MessageSquare className="w-4 h-4" />
-          <span className="font-bold text-xs">{commentCount}</span>
+          <span className="font-bold text-xs">{commentsCount}</span>
         </Button>
 
         <Button
@@ -213,6 +225,16 @@ export const PostEngagement = ({
           <Share2 className="w-4 h-4" />
         </Button>
       </div>
+
+      <CommentSidebar
+        postId={postId}
+        isOpen={isCommentSidebarOpen}
+        onClose={() => setIsCommentSidebarOpen(false)}
+        commentCount={commentsCount}
+        onCommentAdded={handleCommentAdded}
+      />
     </div>
   );
-};
+});
+
+PostEngagement.displayName = 'PostEngagement';

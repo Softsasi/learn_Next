@@ -1,8 +1,10 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import Link from 'next/link';
 
 interface Author {
+  id: string;
   firstName: string;
   lastName: string;
   bio: string | null;
@@ -36,9 +38,11 @@ export const PostAuthorCard = ({ author }: PostAuthorCardProps) => {
                   Content Creator
                 </p>
               </div>
-              <Button variant="outline" className="rounded-full font-bold text-xs px-6">
-                View Profile
-              </Button>
+              <Link href={`/users/${author.id}`}>
+                <Button variant="outline" className="rounded-full font-bold text-xs px-6">
+                  View Profile
+                </Button>
+              </Link>
             </div>
             <p className="text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
               {author.bio || "This author hasn't shared a bio yet, but their stories speak for themselves."}

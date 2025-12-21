@@ -210,6 +210,7 @@ const PostForm = () => {
                     value={state.thumbnail}
                     onChange={handleChange}
                     className="h-11 rounded-xl"
+                    type='url'
                   />
                 </div>
                 <div className="flex items-center justify-between p-4 rounded-xl border bg-gray-50/50 dark:bg-gray-800/30 border-gray-200 dark:border-gray-700">
@@ -240,6 +241,7 @@ const PostForm = () => {
                     onChange={(e) => setTagInput(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
                     className="h-11 rounded-xl"
+
                   />
                   <Button type="button" onClick={addTag} variant="secondary" className="h-11 px-6 rounded-xl">
                     <Plus className="w-4 h-4 mr-2" /> Add
@@ -279,6 +281,7 @@ const PostForm = () => {
                     onChange={(e) => setImageUrlInput(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addImageUrl())}
                     className="h-11 rounded-xl"
+                    type='url'
                   />
                   <Button type="button" onClick={addImageUrl} variant="secondary" className="h-11 px-6 rounded-xl">
                     <Plus className="w-4 h-4 mr-2" /> Add

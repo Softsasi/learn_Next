@@ -5,6 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { logger } from '@/lib/logger';
+import { isValidUrl } from '@/utils/url';
 import { Calendar, Clock, Eye, MessageSquare, ThumbsUp } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -57,10 +59,8 @@ const PostItem = ({
     }).format(parsedDate);
   };
 
-  const isValidUrl = (url: string | null | undefined) => {
-    if (!url) return false;
-    return url.startsWith('http://') || url.startsWith('https://') || url.startsWith('/');
-  };
+
+  logger.debug('Rendering PostItem:', { id, title, slug });
 
   // Simple read time calculation (avg 200 words per minute)
   const readTime = Math.max(1, Math.ceil(content.split(' ').length / 200));
@@ -128,7 +128,7 @@ const PostItem = ({
           </div>
         </div>
 
-        <Link href={`/posts/${id}`} className="block group/title">
+        <Link href={`/posts/${slug}`} className="block group/title">
           <CardTitle className="text-xl font-extrabold leading-tight text-gray-900 dark:text-gray-100 group-hover/title:text-blue-600 dark:group-hover/title:text-blue-400 transition-colors line-clamp-2">
             {title}
           </CardTitle>
@@ -166,6 +166,7 @@ const PostItem = ({
               asChild
             >
               <Link href={`/posts/${slug}`} className="group inline-flex items-center">
+                Read More
                 <span className="ml-1 group-hover:translate-x-1 transition-transform inline-block">→</span>
               </Link>
             </Button>
