@@ -1,6 +1,6 @@
 'use server';
 
-import { signIn, signOut } from "@/auth";
+import { auth, signIn, signOut } from "@/auth";
 
 export async function doSocialLogin(provider: string) {
   console.log("Attempting social login with:", provider);
@@ -17,13 +17,28 @@ import { redirect } from "next/navigation";
 
 export async function doLogin(email: string, password: string) {
   try {
-    await signIn("credentials", {
+  const result = await signIn("credentials", {
       email,
       password,
       redirect: false,
     });
 
-    redirect("/");
+
+    console.log("Login result:", result);
+
+    const data = await auth();
+
+    const role =  data?.user?.role || "STUDENT";
+
+    // redirect based on role
+    if (role === "ADMIN") {
+      redirect("/admin/dashboard");
+    } else if (role === "TEACHER") {
+      redirect("/teacher/dashboard");
+    } else {
+      redirect("/student/dashboard");
+    }
+
   } catch (err: any) {
     if (err?.type === "CredentialsSignin") {
       return { error: "Invalid email or password" };

@@ -55,19 +55,12 @@ const LoginForm = () => {
     e.preventDefault();
     if (validateForm()) {
 
-
-      // const res = await fetch(`${AppConfig.apiUrl}/login`, {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify(formData),
-      // });
-
       const res = await doLogin(
         formData.email,
         formData.password,
       );
+
+      
 
     }
   };

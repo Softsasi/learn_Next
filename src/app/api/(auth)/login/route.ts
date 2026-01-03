@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
   const response = NextResponse.json(
     {
       message: 'Login successful',
-      ...loginResult.date,
+      ...loginResult.data,
       code: 200,
     },
     {

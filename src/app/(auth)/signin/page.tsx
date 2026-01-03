@@ -4,7 +4,6 @@ import SocialLoginButton from '../_componnets/SocialLoginButton';
 
 const SigninPage = () => {
 
-
   return (
     <div className="flex h-screen bg-gray-50">
       <SidePanel />
